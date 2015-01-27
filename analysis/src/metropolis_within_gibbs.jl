@@ -1,6 +1,9 @@
 ### This is not a generically coded Metropolis-within-Gibbs sampler, it is tailored to the problem at hand
 
-function metropolis_within_gibbs(m::Vector{Float64}, n::Matrix{Float64}, x::Matrix{Float64})
+function metropolis_within_gibbs(
+                                 m::Vector{Float64},
+                                 n::Matrix{Float64},
+                                 x::Matrix{Float64})
   # Indices (i, j) refer to the i-th site (transcript) on the j-th cell
   # data_i = (mean_i, {n_ij: j}, {x_ij: j}), mean_i = x_i/n_i
   # Step 1: ∀ i draw a sample from v_i | ({p_ij: j}, data_i) using Metropolis sampling
@@ -14,8 +17,10 @@ function metropolis_within_gibbs(m::Vector{Float64}, n::Matrix{Float64}, x::Matr
   p = Array(Float64, nsites, ncells)
 
   for i in 1:nsites
-    v[i] = metropolis()
+    v[i] = metropolis(f, init, burnin, nsteps, Σ, thinning)[end, :][1]
 
-    map(sample_from_conjugate_beta(), )
+    for j in 1:ncells
+      p[i, j] = rand(Beta())
+    end
   end
 end
