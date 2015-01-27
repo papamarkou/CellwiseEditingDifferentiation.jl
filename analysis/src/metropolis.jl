@@ -36,4 +36,6 @@ function metropolis(f::Function,
       i += 1
     end
   end
+
+  return mcchain
 end
