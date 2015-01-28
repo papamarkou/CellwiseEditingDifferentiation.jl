@@ -19,9 +19,9 @@ function metropolis(f::Function,
 
   current_sample = copy(init)
 
-  mcchain = Matrix(Float64, nsamples, npars)
+  mcchain = Array(Float64, nsamples, npars)
 
-  i::Int = 1
+  counter::Int = 1
   for j in 1:nsteps
     proposed_sample = rand(MvNormal(current_sample, Σ))
 
@@ -32,8 +32,8 @@ function metropolis(f::Function,
     end
 
     if in(j, chain_coords)
-      mcchain[i, :] = current_sample
-      i += 1
+      mcchain[counter, :] = current_sample
+      counter += 1
     end
   end
 
