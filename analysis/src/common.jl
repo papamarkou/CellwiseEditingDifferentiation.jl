@@ -1,4 +1,7 @@
 using Distributions
+using DataFrames
+
+DATADIR = "../../data"
 
 include("beta_moments.jl")
 include("./metropolis.jl")
