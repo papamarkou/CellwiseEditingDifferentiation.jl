@@ -37,6 +37,9 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
       mcchain[:p][counter, :, :] = current_sample[:p]
       counter += 1
     end
+
+    copy!(previous_sample[:v], current_sample[:v])
+    copy!(previous_sample[:p], current_sample[:p])
   end
 
   return mcchain

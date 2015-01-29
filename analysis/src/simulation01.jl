@@ -23,13 +23,13 @@ for i in 1:nsites
 end
 gibbs_init[:p] = p
 
-gibbs_runner = Dict{Symbol, Int}(:burnin=>10,
+gibbs_runner = Dict{Symbol, Any}(:burnin=>10,
                                  :nsteps=>100,
                                  :thinning=>1)
 
-metropolis_prior = Dict{Symbol, Distribution}(:Σ=>fill(eye(1), nsites))
+metropolis_prior = Dict{Symbol, Any}(:Σ=>fill(eye(1), nsites))
 
-metropolis_runner = Dict{Symbol, Int}(:burnin=>1000,
+metropolis_runner = Dict{Symbol, Any}(:burnin=>1000,
                                       :nsteps=>10000,
                                       :thinning=>1)
 
