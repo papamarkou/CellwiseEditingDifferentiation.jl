@@ -21,10 +21,13 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
 
   counter::Int = 1
   for k in 1:gibbs_runner[:nsteps]
-    for i in 2:nsites
+    print("Running $k Gibbs iteration out of $(gibbs_runner[:nsteps])...")
+    tic()
+
+    for i in 1:nsites
       a, b = beta_pars_from_mv(data[:m], previous_sample[:v][i])
-      f(v::Float64) = logpdf(gibbs_prior[:v][i], v)+sum([logpdf(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]), previous_sample[:p][i, m]) for m in 1:ncells])
-      current_sample[:v][i] = metropolis(f, previous_sample[:v][i], metropolis_runner[:burnin], metropolis_runner[:nsteps], metropolis_prior[:Σ], metropolis_runner[:thinning])[end, :][1]
+      f(v::Vector{Float64}) = logpdf(gibbs_prior[:v][i], v[1])+sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), previous_sample[:p][i, m]) for m in 1:ncells])
+      current_sample[:v][i] = metropolis(f, [previous_sample[:v][i]], metropolis_runner[:burnin], metropolis_runner[:nsteps], metropolis_prior[:Σ][i], metropolis_runner[:thinning])[end, :][1]
 
       for j in 1:ncells
         a, b = beta_pars_from_mv(data[:m], current_sample[:v][i])
@@ -40,6 +43,8 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
 
     copy!(previous_sample[:v], current_sample[:v])
     copy!(previous_sample[:p], current_sample[:p])
+
+    println(" completed in $(toq()) seconds")
   end
 
   return mcchain
