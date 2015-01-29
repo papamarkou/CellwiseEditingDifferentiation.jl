@@ -23,8 +23,8 @@ for i in 1:nsites
 end
 gibbs_init[:p] = p
 
-gibbs_runner = Dict{Symbol, Any}(:burnin=>10,
-                                 :nsteps=>100,
+gibbs_runner = Dict{Symbol, Any}(:burnin=>100,
+                                 :nsteps=>1000,
                                  :thinning=>1)
 
 metropolis_prior = Dict{Symbol, Any}(:Σ=>fill(eye(1), nsites))
@@ -33,4 +33,12 @@ metropolis_runner = Dict{Symbol, Any}(:burnin=>1000,
                                       :nsteps=>10000,
                                       :thinning=>1)
 
-v, p = metropolis_within_gibbs(data, gibbs_prior, gibbs_init, gibbs_runner, metropolis_prior, metropolis_runner)
+mcchain = metropolis_within_gibbs(data, gibbs_prior, gibbs_init, gibbs_runner, metropolis_prior, metropolis_runner)
+
+VOUTFILE = joinpath(OUTDIR, "simulation01_v.txt")
+writedlm(VOUTFILE, mcchain[:v], ' ')
+
+POUTFILES = [joinpath(OUTDIR, @sprintf("simulation01d_p_cell%02d.txt", j)) for j in 1:ncells]
+for j in 1:ncells
+  writedlm(POUTFILES[j], mcchain[:p][:, :, j], ' ')
+end

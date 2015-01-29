@@ -20,6 +20,8 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
   mcchain = Dict{Symbol, Any}(:v=>Array(Float64, nsamples, nsites), :p=>Array(Float64, nsamples, nsites, ncells))
 
   counter::Int = 1
+  tic()
+
   for k in 1:gibbs_runner[:nsteps]
     print("Running $k Gibbs iteration out of $(gibbs_runner[:nsteps])...")
     tic()
@@ -46,6 +48,8 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
 
     println(" completed in $(toq()) seconds")
   end
+
+  println("Total ellpased time: $(toq()) seconds")
 
   return mcchain
 end

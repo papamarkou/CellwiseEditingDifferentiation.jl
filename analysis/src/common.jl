@@ -2,6 +2,7 @@ using Distributions
 using DataFrames
 
 DATADIR = "../../data"
+OUTDIR = "../output"
 
 include("beta_moments.jl")
 include("./metropolis.jl")
