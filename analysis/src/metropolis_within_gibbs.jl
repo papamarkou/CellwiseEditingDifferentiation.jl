@@ -14,19 +14,28 @@ function metropolis_within_gibbs(data::Dict{Symbol, Any},
   chain_coords = (gibbs_runner[:burnin]+1):(gibbs_runner[:thinning]):(gibbs_runner[:nsteps])
   nsamples = length(chain_coords)
 
-  mcchain = Dict{Symbol, Any}()
-  mcchain[:v] = Array(Float64, nsites, nsamples)
-  mcchain[:p] = Array(Float64, nsites, ncells, nsamples)
+  previous_sample = Dict{Symbol, Any}(:v=>gibbs_init[:v], :p=>gibbs_init[:p])
+  current_sample = Dict{Symbol, Any}(:v=>Array(Float64, nsites), :p=>Array(Float64, nsites, ncells))
+
+  mcchain = Dict{Symbol, Any}(:v=>Array(Float64, nsamples, nsites), :p=>Array(Float64, nsamples, nsites, ncells))
 
   counter::Int = 1
-  for i in 2:nsites
-    a, b = beta_pars_from_mv(data[:m][i], mcchain[:v][i-1])
-    f(v::Float64) = logpdf(gibbs_prior[:v][i], v)+sum([logpdf(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]), p[i-1, k]) for k in 1:ncells])
-    v[i] = metropolis(f, v[i-1], metropolis_runner[:burnin], metropolis_runner[:nsteps], metropolis_prior[:Σ], metropolis_runner[:thinning])[end, :][1]
+  for k in 1:gibbs_runner[:nsteps]
+    for i in 2:nsites
+      a, b = beta_pars_from_mv(data[:m], previous_sample[:v][i])
+      f(v::Float64) = logpdf(gibbs_prior[:v][i], v)+sum([logpdf(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]), previous_sample[:p][i, m]) for m in 1:ncells])
+      current_sample[:v][i] = metropolis(f, previous_sample[:v][i], metropolis_runner[:burnin], metropolis_runner[:nsteps], metropolis_prior[:Σ], metropolis_runner[:thinning])[end, :][1]
 
-    for j in 1:ncells
-      a, b = beta_pars_from_mv(data[:m], v[i])
-      p[i, j] = rand(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]))
+      for j in 1:ncells
+        a, b = beta_pars_from_mv(data[:m], current_sample[:v][i])
+        current_sample[:p][i, j] = rand(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]))
+      end
+    end
+
+    if in(k, chain_coords)
+      mcchain[:v][counter, :] = current_sample[:v]
+      mcchain[:p][counter, :, :] = current_sample[:p]
+      counter += 1
     end
   end
 
