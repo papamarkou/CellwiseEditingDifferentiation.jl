@@ -1,9 +1,10 @@
-using Distributions
 using DataFrames
+using Distributions
+using Lora
 
 DATADIR = "../../data"
 OUTDIR = "../output"
 
-include("beta_moments.jl")
-include("./metropolis.jl")
-include("./metropolis_within_gibbs.jl")
+include("./logit.jl")
+include("./beta_moments.jl")
+include("./gibbs.jl")

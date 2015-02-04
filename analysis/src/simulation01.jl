@@ -11,7 +11,7 @@ data = Dict{Symbol, Any}(:m=>df[1, :Bulk_er],
 data[:edited] = float(data[:rate].*data[:coverage])
 nsites, ncells = size(data[:coverage])
 
-gibbs_prior = Dict{Symbol, Any}(:v=>Distribution[Beta(1.0, 1.0) for i in 1:nsites])
+gibbs_prior = Dict{Symbol, Any}(:w=>Distribution[Normal() for i in 1:nsites])
 
 gibbs_init = Dict{Symbol, Any}(:v=>Float64[rand(gibbs_prior[:v][i]) for i in 1:nsites])
 p = Array(Float64, nsites, ncells)
@@ -27,13 +27,11 @@ gibbs_runner = Dict{Symbol, Any}(:burnin=>100,
                                  :nsteps=>1000,
                                  :thinning=>1)
 
-metropolis_prior = Dict{Symbol, Any}(:Σ=>fill(eye(1), nsites))
+inner_runner = Dict{Symbol, Any}(:burnin=>100,
+                                 :nsteps=>1000,
+                                 :thinning=>1)
 
-metropolis_runner = Dict{Symbol, Any}(:burnin=>1000,
-                                      :nsteps=>10000,
-                                      :thinning=>1)
-
-mcchain = metropolis_within_gibbs(data, gibbs_prior, gibbs_init, gibbs_runner, metropolis_prior, metropolis_runner)
+mcchain = gibbs(data, gibbs_prior, gibbs_init, gibbs_runner, metropolis_prior, inner_runner)
 
 VOUTFILE = joinpath(OUTDIR, "simulation01_v.txt")
 writedlm(VOUTFILE, mcchain[:v], ' ')
