@@ -1,5 +1,6 @@
 using DataFrames
 using Distributions
+using Gadfly
 using Lora
 
 DATADIR = "../../data"
