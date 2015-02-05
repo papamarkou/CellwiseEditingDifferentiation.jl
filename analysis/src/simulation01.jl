@@ -28,8 +28,9 @@ for i in 1:nsites
 
   for j in 1:ncells
     target[:p][i, j] = function (w::Float64)
-    a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w))
-    Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j])
+      a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w))
+      Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j])
+    end
   end
 end
 
@@ -40,7 +41,7 @@ init[:p] = Float64[rand(target[:p][i, j](init[:w][i])) for i in 1:nsites, j in 1
 
 ### Modellers
 
-modeller = Dict{Symbol, Any}(:w=>Array(MCModel, nsites))
+modeller = Dict{Symbol, Any}(:w=>Array(Function, nsites))
 for i in 1:nsites
   modeller[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
     model(w->target[:w][i](w, p), init=init)
@@ -57,7 +58,7 @@ runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=100, nsteps=1000, thinning=1) fo
 
 ### Jobs
 
-job = Dict{Symbol, Any}(:w=>Array(MCJob, nsites), :p=>Array(DistJob, nsites, ncells))
+job = Dict{Symbol, Any}(:w=>Array(Any, nsites), :p=>Array(DistJob, nsites, ncells))
 
 for i in 1:nsites
   job[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
