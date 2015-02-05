@@ -58,7 +58,7 @@ runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=100, nsteps=1000, thinning=1) fo
 
 ### Jobs
 
-job = Dict{Symbol, Any}(:w=>Array(Any, nsites), :p=>Array(DistJob, nsites, ncells))
+job = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
 
 for i in 1:nsites
   job[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
