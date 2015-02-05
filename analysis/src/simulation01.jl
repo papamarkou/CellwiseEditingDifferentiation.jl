@@ -1,5 +1,7 @@
 include("./common.jl")
 
+### Data
+
 DATAFILE = joinpath(DATADIR, "2015_01_28.txt")
 
 df = readtable(DATAFILE, separator = '\t')
@@ -11,30 +13,74 @@ data = Dict{Symbol, Any}(:m=>df[1, :Bulk_er],
 data[:edited] = float(data[:rate].*data[:coverage])
 nsites, ncells = size(data[:coverage])
 
-gibbs_prior = Dict{Symbol, Any}(:w=>Distribution[Normal() for i in 1:nsites])
+### Targets
 
-gibbs_init = Dict{Symbol, Any}(:v=>Float64[rand(gibbs_prior[:v][i]) for i in 1:nsites])
-p = Array(Float64, nsites, ncells)
+prior = Dict{Symbol, Any}(:w=>Distribution[Normal() for i in 1:nsites])
+
+target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
+
 for i in 1:nsites
-  a, b = beta_pars_from_mv(data[:m], gibbs_init[:v][i])
+  target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
+    a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w[1]))
+    sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells])+
+      logpdf(prior[:w][i], w[1])
+  end
+
   for j in 1:ncells
-    p[i, :] = rand(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]))
+    target[:p][i, j] = function (w::Float64)
+    a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w))
+    Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j])
   end
 end
-gibbs_init[:p] = p
 
-gibbs_runner = Dict{Symbol, Any}(:burnin=>100,
-                                 :nsteps=>1000,
-                                 :thinning=>1)
+### Initial conditions
 
-inner_runner = Dict{Symbol, Any}(:burnin=>100,
-                                 :nsteps=>1000,
-                                 :thinning=>1)
+init = Dict{Symbol, Any}(:w=>Float64[rand(prior[:w][i]) for i in 1:nsites])
+init[:p] = Float64[rand(target[:p][i, j](init[:w][i])) for i in 1:nsites, j in 1:ncells]
 
-mcchain = gibbs(data, gibbs_prior, gibbs_init, gibbs_runner, metropolis_prior, inner_runner)
+### Modellers
+
+modeller = Dict{Symbol, Any}(:w=>Array(MCModel, nsites))
+for i in 1:nsites
+  modeller[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
+    model(w->target[:w][i](w, p), init=init)
+  end
+end
+
+### Samplers
+
+sampler = Dict{Symbol, Any}(:w=>[RAM() for i in 1:nsites])
+
+### Runners
+
+runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=100, nsteps=1000, thinning=1) for i in 1:nsites])
+
+### Jobs
+
+job = Dict{Symbol, Any}(:w=>Array(MCJob, nsites), :p=>Array(DistJob, nsites, ncells))
+
+for i in 1:nsites
+  job[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
+    MCJob(modeller[:w][i](p, init), sampler[:w][i], runner[:w][i])
+  end
+
+  for j in 1:ncells
+    job[:p][i, j] = function (w::Float64)
+      DistJob(target[:p][i, j](w))
+    end
+  end
+end
+
+job[:gibbs] = SerialMC(burnin=100, nsteps=1000, thinning=1)
+
+### Run Gibbs sampler
+
+mcchain = gibbs(data, init, job)
+
+### Write output
 
 VOUTFILE = joinpath(OUTDIR, "simulation01_v.txt")
-writedlm(VOUTFILE, mcchain[:v], ' ')
+writedlm(VOUTFILE,  map(w->0.25*inv_logit(w), mcchain[:w]), ' ')
 
 POUTFILES = [joinpath(OUTDIR, @sprintf("simulation01d_p_cell%02d.txt", j)) for j in 1:ncells]
 for j in 1:ncells
