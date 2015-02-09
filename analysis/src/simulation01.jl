@@ -28,7 +28,7 @@ for i in 1:nsites
     a, b = beta_pars_from_mv(data[:m], v)
     sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells])+
       logdvdw(w[1])+
-      prior[:w](data[:m], v, w[1], a, b)
+      prior[:w][i](data[:m], v, w[1], a, b)
   end
 
   for j in 1:ncells
