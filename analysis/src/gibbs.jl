@@ -18,7 +18,9 @@ function gibbs(data::Dict{Symbol, Any}, init::Dict{Symbol, Any}, job)
     tic()
 
     for i in 1:nsites
-      mcsample[:w][i] = Lora.run(job[:w][i](vec(mcsample[:p][i, :]), [mcsample[:w][i]])).samples[end, :][1]
+      wchain = Lora.run(job[:w][i](vec(mcsample[:p][i, :]), [mcsample[:w][i]]))
+      mcsample[:w][i] = wchain.samples[end, :][1]
+      # println(acceptance(wchain))
 
       for j in 1:ncells
         mcsample[:p][i, j] = run(job[:p][i, j](mcsample[:w][i]))

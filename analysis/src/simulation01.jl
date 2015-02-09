@@ -15,15 +15,20 @@ nsites, ncells = size(data[:coverage])
 
 ### Targets
 
-prior = Dict{Symbol, Any}(:w=>Distribution[Normal() for i in 1:nsites])
+hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
+
+prior = Dict{Symbol, Any}(:w=>Function[(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64)->
+                          wprior(m, v, w, a, b, hyperpars[:λ][i]) for i in 1:nsites])
 
 target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
 
 for i in 1:nsites
   target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
-    a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w[1]))
+    v = 0.25*inv_logit(w[1])
+    a, b = beta_pars_from_mv(data[:m], v)
     sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells])+
-      logpdf(prior[:w][i], w[1])
+      logdvdw(w[1])+
+      prior[:w](data[:m], v, w[1], a, b)
   end
 
   for j in 1:ncells
@@ -36,7 +41,7 @@ end
 
 ### Initial conditions
 
-init = Dict{Symbol, Any}(:w=>Float64[rand(prior[:w][i]) for i in 1:nsites])
+init = Dict{Symbol, Any}(:w=>Float64[0. for i in 1:nsites])
 init[:p] = Float64[rand(target[:p][i, j](init[:w][i])) for i in 1:nsites, j in 1:ncells]
 
 ### Modellers
