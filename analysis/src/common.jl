@@ -4,7 +4,7 @@ using Gadfly
 using Lora
 
 DATADIR = "../../data"
-OUTDIR = "../output"
+OUTROOTDIR = "../output"
 
 include("./logit.jl")
 include("./beta_moments.jl")

@@ -11,7 +11,7 @@ m = df[1, :Bulk_er]
 
 ### Read Beta variance from MCMC simulation
 
-v = vec(readdlm(joinpath(OUTDIR, "simulation01_v.txt")))
+v = vec(readdlm(joinpath(OUTDIR, "simulation02_v.txt")))
 
 ### Draw samples from Beta distribution of editing rate
 
@@ -29,7 +29,7 @@ println("Var of p = $(var(p))")
 
 vplot = plot(x=p,
              Geom.histogram(bincount=50),
-             Guide.xlabel("v"),
+             Guide.xlabel("p"),
              Guide.title("Editing rate histogram"))
 
-draw(PDF(joinpath(OUTDIR, "simulation01_phist.pdf"), 4inch, 3inch), vplot)
+draw(PDF(joinpath(OUTDIR, "simulation02_phist.pdf"), 4inch, 3inch), vplot)
