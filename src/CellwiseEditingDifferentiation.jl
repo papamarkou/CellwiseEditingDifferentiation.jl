@@ -1,5 +1,6 @@
 module CellwiseEditingDifferentiation
 
+using Distributions
 using Lora
 
 import Base:

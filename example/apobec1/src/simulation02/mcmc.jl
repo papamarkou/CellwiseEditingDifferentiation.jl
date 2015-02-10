@@ -1,4 +1,8 @@
-include("./common.jl")
+include("./data.jl")
+
+using Distributions
+using CellwiseEditingDifferentiation
+using Lora
 
 ### Targets
 
@@ -46,7 +50,7 @@ sampler = Dict{Symbol, Any}(:w=>[RAM() for i in 1:nsites])
 
 ### Runners
 
-runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=1000, nsteps=11000, thinning=1) for i in 1:nsites])
+runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=100, nsteps=1100, thinning=1) for i in 1:nsites])
 
 ### Jobs
 
@@ -64,7 +68,7 @@ for i in 1:nsites
   end
 end
 
-job[:gibbs] = SerialMC(burnin=1000, nsteps=11000, thinning=1)
+job[:gibbs] = SerialMC(burnin=100, nsteps=1100, thinning=1)
 
 ### Run Gibbs sampler
 

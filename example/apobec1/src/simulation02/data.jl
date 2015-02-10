@@ -1,15 +1,13 @@
-include("../common.jl")
-
-DATADIR = "../../data"
-OUTROOT = "../output"
+using DataFrames
 
 simulationid = :simulation02
 
-OUTDIR = joinpath(OUTROOT, string(simulationid))
+DATADIR = "../../data"
+OUTDIR = joinpath("../../output", string(simulationid))
 
 ### Load data
 
-DATAFILE = joinpath(DATADIR, "2015_01_28.txt")
+DATAFILE = joinpath(DATADIR, "apobec1.txt")
 
 df = readtable(DATAFILE, separator = '\t')
 df = df[df[:coord] .== 122152902, :]
