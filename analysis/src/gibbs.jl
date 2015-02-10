@@ -14,13 +14,13 @@ function gibbs(data::Dict{Symbol, Any}, init::Dict{Symbol, Any}, job)
   tic()
 
   for k in 1:job[:gibbs].nsteps
-    print("Running $k Gibbs iteration out of $(job[:gibbs].nsteps)...")
+    println("Running $k Gibbs iteration out of $(job[:gibbs].nsteps)...")
     tic()
 
     for i in 1:nsites
       wchain = Lora.run(job[:w][i](vec(mcsample[:p][i, :]), [mcsample[:w][i]]))
       mcsample[:w][i] = wchain.samples[end, :][1]
-      # println(acceptance(wchain))
+      println("  RAM acceptance rate: $(round(acceptance(wchain), 2))%")
 
       for j in 1:ncells
         mcsample[:p][i, j] = run(job[:p][i, j](mcsample[:w][i]))
@@ -33,7 +33,7 @@ function gibbs(data::Dict{Symbol, Any}, init::Dict{Symbol, Any}, job)
       counter += 1
     end
 
-    println(" completed in $(toq()) seconds")
+    println("  Gibbs step completed in $(toq()) seconds")
   end
 
   println("Total ellpased time: $(toq()) seconds")
