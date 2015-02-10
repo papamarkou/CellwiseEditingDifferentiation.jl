@@ -5,4 +5,6 @@ differentiation of editing rates of APOBEC1-related sites across cells.
 
 To install the package, call
 
+```
 Pkg.clone("git@github.com:scidom/CellwiseEditingDifferentiation.jl.git")
+```
