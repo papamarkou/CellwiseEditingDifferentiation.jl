@@ -1,5 +1,8 @@
 include("../common.jl")
 
+DATADIR = "../../data"
+OUTROOT = "../output"
+
 simulationid = :simulation02
 
 OUTDIR = joinpath(OUTROOT, string(simulationid))

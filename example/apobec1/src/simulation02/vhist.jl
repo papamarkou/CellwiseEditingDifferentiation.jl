@@ -8,5 +8,5 @@ for i in 1:nsites
                Guide.xlabel("v"),
                Guide.title("Variance histogram"))
 
-  draw(PDF(joinpath(OUTDIR, "simulation02_vhist.pdf"), 4inch, 3inch), vplot)
+  draw(PDF(joinpath(OUTDIR, @sprintf("vhist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
 end
