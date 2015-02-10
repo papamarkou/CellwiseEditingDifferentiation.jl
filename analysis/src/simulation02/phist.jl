@@ -1,14 +1,5 @@
 include("./common.jl")
 
-### Read Beta mean from data
-
-DATAFILE = joinpath(DATADIR, "2015_01_28.txt")
-
-df = readtable(DATAFILE, separator = '\t')
-df = df[df[:coord] .== 122152902, :]
-
-m = df[1, :Bulk_er]
-
 ### Read Beta variance from MCMC simulation
 
 v = vec(readdlm(joinpath(OUTDIR, "simulation02_v.txt")))

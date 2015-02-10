@@ -1,10 +1,12 @@
 include("./common.jl")
 
-v = vec(readdlm(joinpath(OUTDIR, "simulation02_v.txt")))
+for i in 1:nsites
+  VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
 
-vplot = plot(x=v,
-             Geom.histogram(bincount=50),
-             Guide.xlabel("v"),
-             Guide.title("Variance histogram"))
+  vplot = plot(x=vec(readdlm(VOUTFILE)),
+               Geom.histogram(bincount=50),
+               Guide.xlabel("v"),
+               Guide.title("Variance histogram"))
 
-draw(PDF(joinpath(OUTDIR, "simulation02_vhist.pdf"), 4inch, 3inch), vplot)
+  draw(PDF(joinpath(OUTDIR, "simulation02_vhist.pdf"), 4inch, 3inch), vplot)
+end

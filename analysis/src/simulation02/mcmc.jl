@@ -1,18 +1,5 @@
 include("./common.jl")
 
-### Data
-
-DATAFILE = joinpath(DATADIR, "2015_01_28.txt")
-
-df = readtable(DATAFILE, separator = '\t')
-df = df[df[:coord] .== 122152902, :]
-
-data = Dict{Symbol, Any}(:m=>df[1, :Bulk_er],
-                         :coverage=>float(array(df[1, 5:2:51])),
-                         :rate=>float(array(df[1, 6:2:52])))
-data[:edited] = float(data[:rate].*data[:coverage])
-nsites, ncells = size(data[:coverage])
-
 ### Targets
 
 hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
@@ -85,10 +72,12 @@ mcchain = gibbs(data, init, job)
 
 ### Write output
 
-VOUTFILE = joinpath(OUTDIR, "simulation02_v.txt")
-writedlm(VOUTFILE,  map(w->0.25*inv_logit(w), mcchain[:w]), ' ')
+for i in 1:nsites
+  VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
+  writedlm(VOUTFILE,  map(w->0.25*inv_logit(w), mcchain[:w]), ' ')
 
-POUTFILES = [joinpath(OUTDIR, @sprintf("simulation02d_p_cell%02d.txt", j)) for j in 1:ncells]
-for j in 1:ncells
-  writedlm(POUTFILES[j], mcchain[:p][:, :, j], ' ')
+  for j in 1:ncells
+    POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, j))
+    writedlm(POUTFILE, mcchain[:p][:, :, j], ' ')
+  end
 end
