@@ -16,15 +16,15 @@ target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsit
 for i in 1:nsites
   target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
     v = 0.25*inv_logit(w[1])
-    a, b = beta_pars_from_mv(data[:m], v)
+    a, b = beta_pars_from_mv(data[:m][i], v)
     sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells])+
       logdvdw(w[1])+
-      prior[:w][i](data[:m], v, w[1], a, b)
+      prior[:w][i](data[:m][i], v, w[1], a, b)
   end
 
   for j in 1:ncells
     target[:p][i, j] = function (w::Float64)
-      a, b = beta_pars_from_mv(data[:m], 0.25*inv_logit(w))
+      a, b = beta_pars_from_mv(data[:m][i], 0.25*inv_logit(w))
       Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j])
     end
   end
