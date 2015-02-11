@@ -78,10 +78,10 @@ mcchain = gibbs(data, init, job)
 
 for i in 1:nsites
   VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
-  writedlm(VOUTFILE,  map(w->0.25*inv_logit(w), mcchain[:w]), ' ')
+  writedlm(VOUTFILE,  map(w->0.25*inv_logit(w), mcchain[:w][:, i]), ' ')
 
   for j in 1:ncells
     POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, j))
-    writedlm(POUTFILE, mcchain[:p][:, :, j], ' ')
+    writedlm(POUTFILE, mcchain[:p][:, i, j], ' ')
   end
 end
