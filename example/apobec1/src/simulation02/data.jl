@@ -10,7 +10,7 @@ OUTDIR = joinpath("../../output", string(simulationid))
 DATAFILE = joinpath(DATADIR, "apobec1.txt")
 
 df = readtable(DATAFILE, separator = '\t')
-df = df[df[:coord] .== 122152902, :]
+df = df[findin(df[:coord], [122152902, 84954779]), :]
 
 data = Dict{Symbol, Any}(:m=>df[1, :Bulk_er],
                          :coverage=>float(array(df[1, 5:2:51])),
