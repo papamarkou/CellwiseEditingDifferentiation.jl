@@ -50,7 +50,7 @@ sampler = Dict{Symbol, Any}(:w=>[RAM() for i in 1:nsites])
 
 ### Runners
 
-runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=100, nsteps=1100, thinning=1) for i in 1:nsites])
+runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=10, nsteps=110, thinning=1) for i in 1:nsites])
 
 ### Jobs
 
