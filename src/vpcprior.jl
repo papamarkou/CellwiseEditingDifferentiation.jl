@@ -1,4 +1,4 @@
-function vprior(m::Float64, v::Float64, a::Float64, b::Float64, λ::Float64)
+function vpcprior(m::Float64, v::Float64, a::Float64, b::Float64, λ::Float64)
   d = digamma(a+b)-m*digamma(a)-(1-m)*digamma(b)
 
   z = log(λ)-
@@ -12,4 +12,4 @@ end
 l2 = 0.6931471805599453
 logdvdw(w::Float64) = w-2*(log(1+exp(w))+l2)
 
-wprior(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64, λ::Float64) = vprior(m, v, a, b, λ)+logdvdw(w)
+wpcprior(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64, λ::Float64) = vpcprior(m, v, a, b, λ)+logdvdw(w)
