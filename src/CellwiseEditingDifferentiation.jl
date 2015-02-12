@@ -22,7 +22,7 @@ export
 
 include("logit.jl")
 include("beta_moments.jl")
-include("vprior.jl")
+include("vpcprior.jl")
 include("DistJob.jl")
 include("gibbs.jl")
 
