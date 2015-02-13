@@ -1,6 +1,6 @@
 using DataFrames
 
-simulationid = :simulation02
+simulationid = :simulation01
 
 DATADIR = "../../data"
 OUTDIR = joinpath("../../output", string(simulationid))
