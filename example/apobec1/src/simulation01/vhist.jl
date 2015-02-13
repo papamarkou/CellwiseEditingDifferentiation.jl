@@ -17,7 +17,10 @@ for i in 1:nsites
   end
 end
 
-support = Dict{Symbol, Any}(:v=>[0.0001:0.0001:0.2458, 0.0001:0.0001:0.2476])
+support = Dict{Symbol, Any}(:v=>Any[0.0001:0.0001:0.2458, 0.0001:0.0001:0.2476])
+
+vprior_ymin = fill(0., 2)
+vprior_ymax = fill(200., 2)
 
 for i in 1:nsites
   # colors = distinguishable_colors(2)
@@ -46,7 +49,8 @@ for i in 1:nsites
     layers,
     Guide.xlabel("v<sub>$i</sub>"),
     Guide.title("Histogram of v<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
+    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)]),
+    Coord.Cartesian(ymin=vprior_ymin[i], ymax=vprior_ymax[i])
   )
 
   draw(PDF(joinpath(OUTDIR, @sprintf("vhist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
