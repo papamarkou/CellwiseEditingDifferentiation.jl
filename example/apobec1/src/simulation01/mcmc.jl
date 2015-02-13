@@ -9,7 +9,7 @@ using Lora
 hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
 
 prior = Dict{Symbol, Any}(:w=>Function[(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64)->
-                          wprior(m, v, w, a, b, hyperpars[:λ][i]) for i in 1:nsites])
+                          wpcprior(m, v, w, a, b, hyperpars[:λ][i]) for i in 1:nsites])
 
 target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
 
