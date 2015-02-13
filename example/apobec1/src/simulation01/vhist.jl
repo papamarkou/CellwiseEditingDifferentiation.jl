@@ -1,5 +1,6 @@
 include("./data.jl")
 
+using CellwiseEditingDifferentiation
 # using Color
 using Gadfly
 
@@ -16,7 +17,7 @@ for i in 1:nsites
   end
 end
 
-support = Dict{Symbol, Any}(:v=>fill(0.0001:0.0001:0.2475, nsites))
+support = Dict{Symbol, Any}(:v=>[0.0001:0.0001:0.2458, 0.0001:0.0001:0.2476])
 
 for i in 1:nsites
   # colors = distinguishable_colors(2)
@@ -28,17 +29,17 @@ for i in 1:nsites
   c = quadgk(target[:v][i], support[:v][i][1], support[:v][i][end])
 
   push!(layers, layer(
-    x=collect(v),
+    x=collect(support[:v][i]),
     y=vpdf/c[1],
     Geom.line,
     Theme(default_color=colors[:prior])
   )[1])
 
   push!(layers, layer(
-    x=vec(readdlm(joinpath(OUTDIR, "chain_simulation02_site01.txt"))),
+    x=vec(readdlm(joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i)))),
     Stat.histogram(bincount=50, density=true),
     Geom.line,
-    Theme(default_color=colors[:prior])
+    Theme(default_color=colors[:posterior])
   )[1])
 
   vplot = plot(
