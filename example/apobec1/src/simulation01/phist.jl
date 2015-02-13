@@ -22,8 +22,8 @@ for i in 1:nsites
     pposterior[j] = rand(Beta(a, b))
   end
 
-  println("Mean of pposterior = $(mean(pposterior))")
-  println("Var of pposterior = $(var(pposterior))")
+  println("Mean of pposterior for site $i = $(mean(pposterior))")
+  println("Var of pposterior for site $i = $(var(pposterior))")
 
   push!(layers, layer(
     x=pposterior,
