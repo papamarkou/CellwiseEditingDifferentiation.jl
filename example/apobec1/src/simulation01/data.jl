@@ -9,11 +9,11 @@ OUTDIR = joinpath("../../output", string(simulationid))
 
 DATAFILE = joinpath(DATADIR, "apobec1.txt")
 
-sites = Dict{ASCIIString, Int}("chr2"=>122152902, "chr16"=>84954513)
-nsites = length(sites)
+sites = DataFrame(chr = ["chr2", "chr16"], coord = [122152902, 84954513])
+nsites = nrow(sites)
 
 df = readtable(DATAFILE, separator = '\t')
-df = df[intersect(findin(df[:chr], keys(sites)), findin(df[:coord], values(sites))), :]
+df = df[intersect(findin(df[:chr], sites[:chr]), findin(df[:coord], sites[:coord])), :]
 
 data = Dict{Symbol, Any}(:m=>df[:, :Bulk_er],
                          :coverage=>float(array(df[:, 5:2:51])),
