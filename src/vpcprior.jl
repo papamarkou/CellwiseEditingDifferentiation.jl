@@ -1,4 +1,4 @@
-l2 = 0.6931471805599453 # log(2)
+const l2 = 0.6931471805599453 # log(2)
 
 function vpcprior(m::Float64, v::Float64, a::Float64, b::Float64, λ::Float64)
   d = digamma(a+b)-m*digamma(a)-(1-m)*digamma(b)
