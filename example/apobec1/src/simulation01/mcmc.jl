@@ -90,6 +90,6 @@ for i in 1:nsites
 
   for j in 1:ncells[j]
     POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, cells[i][j]))
-    writedlm(POUTFILE, mcchain[:p][:, i, j], ' ')
+    writedlm(POUTFILE, [mcchain[:p][k][i][j] for k in 1:job[:gibbs].nsteps], ' ')
   end
 end
