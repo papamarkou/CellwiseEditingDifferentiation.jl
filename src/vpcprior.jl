@@ -11,6 +11,4 @@ function vpcprior(m::Float64, v::Float64, a::Float64, b::Float64, λ::Float64)
   return z
 end
 
-logdvdw(w::Float64) = w-2*(log(1+exp(w))+l2)
-
-wpcprior(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64, λ::Float64) = vpcprior(m, v, a, b, λ)+logdvdw(w)
+logdvdw(w::Float64, m::Float64) = w-2*log(1+exp(w))+log(m*(1-m))

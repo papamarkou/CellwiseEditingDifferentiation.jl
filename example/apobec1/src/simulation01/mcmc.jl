@@ -8,23 +8,23 @@ using Lora
 
 hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
 
-prior = Dict{Symbol, Any}(:w=>Function[(m::Float64, v::Float64, w::Float64, a::Float64, b::Float64)->
-                          wpcprior(m, v, w, a, b, hyperpars[:λ][i]) for i in 1:nsites])
+prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
+                          vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
 
 target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
 
 for i in 1:nsites
   target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
-    v = 0.25*inv_logit(w[1])
+    v = data[:m][i]*(1-data[:m][i])*inv_logit(w[1])
     a, b = beta_pars_from_mv(data[:m][i], v)
     sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells])+
-      logdvdw(w[1])+
-      prior[:w][i](data[:m][i], v, w[1], a, b)
+      2*logdvdw(w[1], data[:m][i])+
+      prior[:v][i](data[:m][i], v, a, b)
   end
 
   for j in 1:ncells
     target[:p][i, j] = function (w::Float64)
-      a, b = beta_pars_from_mv(data[:m][i], 0.25*inv_logit(w))
+      a, b = beta_pars_from_mv(data[:m][i], data[:m][i]*(1-data[:m][i])*inv_logit(w))
       Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j])
     end
   end
