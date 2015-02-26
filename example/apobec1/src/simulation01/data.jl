@@ -23,12 +23,12 @@ data = Dict{Symbol, Any}(:m=>df[:, :Bulk_er],
                          :rate=>float(array(df[:, 6:2:52])))
 data[:edited] = float(data[:rate].*data[:coverage])
 
-nonmissing_data = Dict{Int, Vector{Int}}()
+cells = Dict{Int, Vector{Int}}()
 for i in 1:nsites
-  nonmissing_data[i] = find(data[:coverage][i, :] .!= 0)
+  cells[i] = find(data[:coverage][i, :] .!= 0)
 end
 
-ncells = Dict{Int, int}()
+ncells = Dict{Int, Int}()
 for i in 1:nsites
-  ncells[i] = length(nonmissing_data[i])
+  ncells[i] = length(cells[i])
 end
