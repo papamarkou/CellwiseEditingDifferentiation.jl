@@ -17,7 +17,7 @@ for i in 1:nsites
   target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
     v = data[:m][i]*(1-data[:m][i])*inv_logit(w[1])
     a, b = beta_pars_from_mv(data[:m][i], v)
-    sum([logpdf(Beta(a+data[:edited][i, m], b+data[:coverage][i, m]-data[:edited][i, m]), p[m]) for m in 1:ncells[i]])+
+    sum([logpdf(Beta(a+data[:edited][i, cells[i][m]], b+data[:coverage][i, cells[i][m]]-data[:edited][i, cells[i][m]]), p[m]) for m in 1:ncells[i]])+
       2*logdvdw(w[1], data[:m][i])+
       prior[:v][i](data[:m][i], v, a, b)
   end
