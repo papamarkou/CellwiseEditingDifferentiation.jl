@@ -17,7 +17,7 @@ for i in 1:nsites
   end
 end
 
-support = Dict{Symbol, Any}(:v=>Any[0.0001:0.0001:0.2458, 0.0001:0.0001:0.2476])
+support = Dict{Symbol, Any}(:v=>fill(0.0001:0.0001:0.9999*data[:m][i]*(1-data[:m][i]), nsites))
 
 vprior_xmin = fill(0., nsites)
 vprior_xmax = fill(0.03, nsites)

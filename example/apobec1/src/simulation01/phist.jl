@@ -22,7 +22,7 @@ for i in 1:nsites
   end
 end
 
-support = Dict{Symbol, Any}(:v=>Any[0.0001:0.0001:0.2458, 0.0001:0.0001:0.2476])
+support = Dict{Symbol, Any}(:v=>fill(0.0001:0.0001:0.9999*data[:m][i]*(1-data[:m][i]), nsites))
 
 for i in 1:nsites
   np = 100000
@@ -39,7 +39,7 @@ for i in 1:nsites
   println("Mean of pposterior for site $i = $(mean(pposterior))")
   println("Var of pposterior for site $i = $(var(pposterior))")
 
-  u = 0.25*rand(Uniform(0, 1), np)
+  u = data[:m][i]*(1-data[:m][i])*rand(Uniform(0, 1), np)
   weight = map(target[:v][i], u)
   weight = weight/sum(weight)
   index = rand(Categorical(weight), np)
