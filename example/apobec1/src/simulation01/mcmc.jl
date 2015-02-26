@@ -88,8 +88,8 @@ for i in 1:nsites
   VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
   writedlm(VOUTFILE,  map(w->data[:m][i]*(1-data[:m][i])*inv_logit(w), mcchain[:w][:, i]), ' ')
 
-  for j in 1:ncells[j]
+  for j in 1:ncells[i]
     POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, cells[i][j]))
-    writedlm(POUTFILE, [mcchain[:p][k][i][j] for k in 1:job[:gibbs].nsteps], ' ')
+    writedlm(POUTFILE, [mcchain[:p][k][i][j] for k in 1:length(job[:gibbs].r)], ' ')
   end
 end
