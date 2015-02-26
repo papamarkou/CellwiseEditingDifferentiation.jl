@@ -10,6 +10,7 @@ OUTDIR = joinpath("../../output", string(simulationid))
 DATAFILE = joinpath(DATADIR, "apobec1.txt")
 
 sites = DataFrame(chr = ["chr2", "chr16"], coord = [122152902, 84954513])
+# sites = DataFrame(chr = ["chrX", "chr4", "chr5"], coord = [109162174, 6395365, 104440840])
 nsites = nrow(sites)
 
 df = readtable(DATAFILE, separator = '\t')
