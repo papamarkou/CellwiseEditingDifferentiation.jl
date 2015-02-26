@@ -45,9 +45,9 @@ for i in 1:nsites
 
   pprior = Array(Float64, np)
 
-  for j in 1:ncells
+  for j in 1:np
     a, b = beta_pars_from_mv(data[:m][i], rand(mcchain))
-    pprior[j] = rand(Beta(a+data[:edited][i, j], b+data[:coverage][i, j]-data[:edited][i, j]))
+    pprior[j] = rand(Beta(a, b))
   end
 
   println("Mean of pprior for site $i = $(mean(pprior))")
