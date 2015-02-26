@@ -11,7 +11,6 @@ hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
                           vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
 
-#target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
 target = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Dict{Int, Vector{Function}}())
 
 for i in 1:nsites
@@ -35,7 +34,13 @@ end
 ### Initial conditions
 
 init = Dict{Symbol, Any}(:w=>Float64[0. for i in 1:nsites])
-# init[:p] = Float64[rand(target[:p][i, j](init[:w][i])) for i in 1:nsites, j in 1:ncells]
+init[:p] = Dict{Int, Vector{Float64}}()
+for i in 1:nsites
+  init[:p][i] = Array(Float64, ncells[i])
+  for j in 1:ncells[i]
+    init[:p][i][j] = rand(target[:p][i][j](init[:w][i]))
+  end
+end
 
 ### Modellers
 
@@ -56,16 +61,17 @@ runner = Dict{Symbol, Any}(:w=>[SerialMC(burnin=1000, nsteps=11000, thinning=1) 
 
 ### Jobs
 
-job = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Array(Function, nsites, ncells))
+job = Dict{Symbol, Any}(:w=>Array(Function, nsites), :p=>Dict{Int, Vector{Function}}())
 
 for i in 1:nsites
   job[:w][i] = function (p::Vector{Float64}, init::Vector{Float64})
     MCJob(modeller[:w][i](p, init), sampler[:w][i], runner[:w][i])
   end
 
-  for j in 1:ncells
-    job[:p][i, j] = function (w::Float64)
-      DistJob(target[:p][i, j](w))
+  job[:p][i] = Array(Function, ncells[i])
+  for j in 1:ncells[i]
+    job[:p][i][j] = function (w::Float64)
+      DistJob(target[:p][i][j](w))
     end
   end
 end
@@ -82,8 +88,8 @@ for i in 1:nsites
   VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
   writedlm(VOUTFILE,  map(w->data[:m][i]*(1-data[:m][i])*inv_logit(w), mcchain[:w][:, i]), ' ')
 
-  for j in 1:ncells
-    POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, j))
+  for j in 1:ncells[j]
+    POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, cells[i][j]))
     writedlm(POUTFILE, mcchain[:p][:, i, j], ' ')
   end
 end
