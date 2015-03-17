@@ -1,4 +1,4 @@
-include("./data.jl")
+include("./artificial_data.jl")
 
 using CellwiseEditingDifferentiation
 using Color
@@ -23,7 +23,7 @@ for i in 1:nsites
   vplot = plot(
     layers,
     Guide.xlabel("p<sub>$i</sub>"),
-    Guide.title("Histograms of marginal p<sub>$i</sub>"),
+    Guide.title("Histograms of conditional p<sub>$i</sub>"),
     Guide.manual_color_key("Distribution", ["cell "*string(k) for k in cells[i]], [c for c in colors])
   )
 

@@ -1,12 +1,11 @@
-include("./data.jl")
+include("./artificial_data.jl")
 
 using CellwiseEditingDifferentiation
-# using Color
 using Distributions
 using Gadfly
 using Lora
 
-hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
+hyperpars = Dict{Symbol, Any}(:λ=>fill(1.0, nsites))
 
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
   vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
@@ -53,7 +52,6 @@ for i in 1:nsites
   println("Mean of pprior for site $i = $(mean(pprior))")
   println("Var of pprior for site $i = $(var(pprior))")
 
-  # colors = distinguishable_colors(2)
   colors = Dict{Symbol, Color.RGB{Float64}}(:posterior=>color("red"), :prior=>color("blue"))
 
   layers = Layer[]
@@ -75,7 +73,7 @@ for i in 1:nsites
   vplot = plot(
     layers,
     Guide.xlabel("p<sub>$i</sub>"),
-    Guide.title("Histogram of p<sub>$i</sub>"),
+    Guide.title("Marginal histogram of p<sub>$i</sub>"),
     Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
   )
 

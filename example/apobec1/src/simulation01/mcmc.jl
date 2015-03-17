@@ -1,4 +1,4 @@
-include("./data.jl")
+include("./artificial_data.jl")
 
 using Distributions
 using CellwiseEditingDifferentiation
@@ -6,7 +6,7 @@ using Lora
 
 ### Targets
 
-hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
+hyperpars = Dict{Symbol, Any}(:λ=>fill(1.0, nsites))
 
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
                           vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
