@@ -1,4 +1,4 @@
-include("./artificial_data.jl")
+include("./data.jl")
 
 using Distributions
 using CellwiseEditingDifferentiation
@@ -6,7 +6,7 @@ using Lora
 
 ### Targets
 
-hyperpars = Dict{Symbol, Any}(:λ=>fill(100.0, nsites))
+hyperpars = Dict{Symbol, Any}(:λ=>fill(300.0, nsites))
 
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
                           vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
@@ -88,8 +88,6 @@ for i in 1:nsites
   VOUTFILE = joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))
   writedlm(VOUTFILE,  map(w->data[:m][i]*(1-data[:m][i])*inv_logit(w), mcchain[:w][:, i]), ' ')
 
-  for j in 1:ncells[i]
-    POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d_cell%02d.txt", string(simulationid), i, cells[i][j]))
-    writedlm(POUTFILE, [mcchain[:p][k][i][j] for k in 1:length(job[:gibbs].r)], ' ')
-  end
+  POUTFILE = joinpath(OUTDIR, @sprintf("pchain_%s_site%02d.txt", string(simulationid), i))
+  writedlm(POUTFILE, mcchain[:p][i], ' ')
 end

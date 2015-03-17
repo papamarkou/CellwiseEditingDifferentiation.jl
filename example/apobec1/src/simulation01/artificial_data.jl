@@ -9,5 +9,12 @@ data = Dict{Symbol, Any}(:m=>0.5,
                          :edited=>Float64[5 10 15 20])
 data[:rate] = float(data[:edited]./data[:coverage])
 
-cells = Dict{Int, Vector{Int}}(1=>[1, 2, 3, 4])
-ncells = Dict{Int, Int}(1=>4)
+cells = Dict{Int, Vector{Int}}()
+for i in 1:nsites
+  cells[i] = find(data[:coverage][i, :] .!= 0)
+end
+
+ncells = Dict{Int, Int}()
+for i in 1:nsites
+  ncells[i] = length(cells[i])
+end

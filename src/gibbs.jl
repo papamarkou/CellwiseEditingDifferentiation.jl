@@ -16,7 +16,12 @@ function gibbs(data::Dict{Symbol, Any}, init::Dict{Symbol, Any}, job)
   nmc = length(job[:gibbs].r)
 
   mcsample = Dict{Symbol, Any}(:w=>init[:w], :p=>init[:p])
-  mcchain = Dict{Symbol, Any}(:w=>Array(Float64, nmc, nsites), :p=>Array(Any, nmc))
+
+  mcchain = Dict{Symbol, Any}(:w=>Array(Float64, nmc, nsites))
+  mcchain[:p] = Dict{Int, Matrix{Float64}}()
+  for i in 1:nsites
+    mcchain[:p][i] = Array(Float64, nmc, ncells[i])
+  end
 
   counter::Int = 1
   tic()
@@ -37,7 +42,13 @@ function gibbs(data::Dict{Symbol, Any}, init::Dict{Symbol, Any}, job)
 
     if in(k, job[:gibbs].r)
       mcchain[:w][counter, :] = mcsample[:w]
-      mcchain[:p][counter] = mcsample[:p]
+
+      for i in 1:nsites
+        for j in 1:ncells[i]
+          mcchain[:p][i][counter, j] = mcsample[:p][i][j]
+        end
+      end
+
       counter += 1
     end
 
