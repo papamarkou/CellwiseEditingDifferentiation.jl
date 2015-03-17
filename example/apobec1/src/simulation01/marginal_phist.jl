@@ -24,7 +24,7 @@ for i in 1:nsites
     layers,
     Guide.xlabel("p<sub>$i</sub>"),
     Guide.title("Histograms of marginal p<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", ["cell "*string(k) for k in 1:length(colors)], [c for c in colors])
+    Guide.manual_color_key("Distribution", ["cell "*string(k) for k in cells[i]], [c for c in colors])
   )
 
   draw(PDF(joinpath(OUTDIR, @sprintf("marginal_phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
