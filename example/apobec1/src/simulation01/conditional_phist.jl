@@ -27,5 +27,5 @@ for i in 1:nsites
     Guide.manual_color_key("Distribution", ["cell "*string(k) for k in cells[i]], [c for c in colors])
   )
 
-  draw(PDF(joinpath(OUTDIR, @sprintf("marginal_phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
+  draw(PDF(joinpath(OUTDIR, @sprintf("conditional_phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
 end
