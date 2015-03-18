@@ -1,31 +1,81 @@
 include("./artificial_data.jl")
 
 using CellwiseEditingDifferentiation
-using Color
+using Distributions
 using Gadfly
+using Lora
+
+hyperpars = Dict{Symbol, Any}(:λ=>fill(1.0, nsites))
+
+prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
+  vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
+
+prior_target = Dict{Symbol, Any}(:w=>Array(Function, nsites))
+for i in 1:nsites
+  prior_target[:w][i] = function (w::Vector{Float64})
+    v = data[:m][i]*(1-data[:m][i])*inv_logit(w[1])
+    a, b = beta_pars_from_mv(data[:m][i], v)
+    prior[:v][i](data[:m][i], v, a, b)+logdvdw(w[1], data[:m][i])
+  end
+end
+
+prior_init = Dict{Symbol, Any}(:w=>fill(0.0, nsites))
 
 for i in 1:nsites
-  colors = distinguishable_colors(ncells[i])
+  np = 100000
+
+  vposterior = vec(readdlm(joinpath(OUTDIR, @sprintf("vchain_%s_site%02d.txt", string(simulationid), i))))
+
+  pposterior = Array(Float64, np)
+
+  for j in 1:np
+    a, b = beta_pars_from_mv(data[:m][i], rand(vposterior))
+    pposterior[j] = rand(Beta(a, b))
+  end
+
+  println("Mean of pposterior for site $i = $(mean(pposterior))")
+  println("Var of pposterior for site $i = $(var(pposterior))")
+
+  mcmodel = model(prior_target[:w][i], init=[prior_init[:w][i]])
+  mcsampler = RAM()
+  mcrunner = SerialMC(nsteps=int(1.01*np), burnin=int(0.1*np))
+  mcchain = run(mcmodel, mcsampler, mcrunner)
+  mcchain = map(w->data[:m][i]*(1-data[:m][i])*inv_logit(w), vec(mcchain.samples))
+
+  pprior = Array(Float64, np)
+
+  for j in 1:np
+    a, b = beta_pars_from_mv(data[:m][i], rand(mcchain))
+    pprior[j] = rand(Beta(a, b))
+  end
+
+  println("Mean of pprior for site $i = $(mean(pprior))")
+  println("Var of pprior for site $i = $(var(pprior))")
+
+  colors = Dict{Symbol, Color.RGB{Float64}}(:posterior=>color("red"), :prior=>color("blue"))
 
   layers = Layer[]
 
-  pchain = readdlm(joinpath(OUTDIR, @sprintf("pchain_%s_site%02d.txt", string(simulationid), i)))
+  push!(layers, layer(
+    x=pposterior,
+    Stat.histogram(bincount=50, density=true),
+    Geom.line,
+    Theme(default_color=colors[:posterior])
+  )[1])
 
-  for j in 1:ncells[i]
-    push!(layers, layer(
-      x=pchain[:, j],
-      Stat.histogram(bincount=50, density=true),
-      Geom.line,
-      Theme(default_color=colors[j])
-    )[1])
-  end
+  push!(layers, layer(
+    x=pprior,
+    Stat.histogram(bincount=50, density=true),
+    Geom.line,
+    Theme(default_color=colors[:prior])
+  )[1])
 
   vplot = plot(
     layers,
     Guide.xlabel("p<sub>$i</sub>"),
-    Guide.title("Histograms of conditional p<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", ["cell "*string(k) for k in cells[i]], [c for c in colors])
+    Guide.title("Marginal histogram of p<sub>$i</sub>"),
+    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
   )
 
-  draw(PDF(joinpath(OUTDIR, @sprintf("marginal_phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
+  draw(PDF(joinpath(OUTDIR, @sprintf("phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)
 end
