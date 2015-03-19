@@ -6,7 +6,7 @@ using Lora
 
 ### Targets
 
-hyperpars = Dict{Symbol, Any}(:λ=>fill(1.0, nsites))
+hyperpars = Dict{Symbol, Any}(:λ=>fill(10.0, nsites))
 
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
                           vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
@@ -17,9 +17,7 @@ for i in 1:nsites
   target[:w][i] = function (w::Vector{Float64}, p::Vector{Float64})
     v = data[:m][i]*(1-data[:m][i])*inv_logit(w[1])
     a, b = beta_pars_from_mv(data[:m][i], v)
-    sum([logpdf(Beta(a+data[:edited][i, cells[i][m]], b+data[:coverage][i, cells[i][m]]-data[:edited][i, cells[i][m]]), p[m]) for m in 1:ncells[i]])+
-      2*logdvdw(w[1], data[:m][i])+
-      prior[:v][i](data[:m][i], v, a, b)
+    sum([logpdf(Beta(a, b), p[m]) for m in 1:ncells[i]])+prior[:v][i](data[:m][i], v, a, b)+logdvdw(w[1], data[:m][i])
   end
 
   target[:p][i] = Array(Function, ncells[i])

@@ -3,10 +3,10 @@ include("./artificial_data.jl")
 using CellwiseEditingDifferentiation
 using Gadfly
 
-hyperpars = Dict{Symbol, Any}(:λ=>fill(1.0, nsites))
+hyperpars = Dict{Symbol, Any}(:λ=>fill(10.0, nsites))
 
 prior = Dict{Symbol, Any}(:v=>Function[(m::Float64, v::Float64, a::Float64, b::Float64)->
-  vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
+                          vpcprior(m, v, a, b, hyperpars[:λ][i]) for i in 1:nsites])
 
 target = Dict{Symbol, Any}(:v=>Array(Function, nsites))
 for i in 1:nsites
@@ -20,8 +20,8 @@ support = Dict{Symbol, Any}(:v=>Any[0.0001:0.0001:0.9999*data[:m][i]*(1-data[:m]
 
 # vprior_xmin = fill(0., nsites)
 # vprior_xmax = fill(0.03, nsites)
-# vprior_ymin = fill(0., nsites)
-# vprior_ymax = fill(400., nsites)
+vprior_ymin = fill(0., nsites)
+vprior_ymax = fill(40., nsites)
 
 for i in 1:nsites
   vpdf = Float64[target[:v][i](x) for x in support[:v][i]]
@@ -49,7 +49,8 @@ for i in 1:nsites
     layers,
     Guide.xlabel("v<sub>$i</sub>"),
     Guide.title("Histogram of v<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
+    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)]),
+    Coord.Cartesian(ymin=vprior_ymin[i], ymax=vprior_ymax[i])
     # Coord.Cartesian(xmin=vprior_xmin[i], xmax=vprior_xmax[i], ymin=vprior_ymin[i], ymax=vprior_ymax[i])
   )
 
