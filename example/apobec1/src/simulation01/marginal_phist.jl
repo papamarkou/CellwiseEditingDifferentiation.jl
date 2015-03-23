@@ -73,8 +73,8 @@ for i in 1:nsites
   vplot = plot(
     layers,
     Guide.xlabel("p<sub>$i</sub>"),
-    Guide.title("Marginal histogram of p<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
+    Guide.title("Marginal histogram of p<sub>$i</sub>")
+    # Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)])
   )
 
   draw(PDF(joinpath(OUTDIR, @sprintf("marginal_phist_%s_site%02d.pdf", string(simulationid), i)), 4inch, 3inch), vplot)

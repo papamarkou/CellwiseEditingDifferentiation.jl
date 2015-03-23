@@ -48,9 +48,8 @@ for i in 1:nsites
   vplot = plot(
     layers,
     Guide.xlabel("v<sub>$i</sub>"),
-    Guide.title("Histogram of v<sub>$i</sub>"),
-    Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)]),
-    Coord.Cartesian(ymin=vprior_ymin[i], ymax=vprior_ymax[i])
+    Guide.title("Histogram of v<sub>$i</sub>")
+    # Guide.manual_color_key("Distribution", [string(k) for k in keys(colors)], [c for c in values(colors)]),
     # Coord.Cartesian(xmin=vprior_xmin[i], xmax=vprior_xmax[i], ymin=vprior_ymin[i], ymax=vprior_ymax[i])
   )
 
