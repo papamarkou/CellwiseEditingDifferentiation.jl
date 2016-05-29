@@ -3,9 +3,6 @@ module CellwiseEditingDifferentiation
 using Distributions
 using Lora
 
-import Base:
-  run
-
 export
   logit,
   inv_logit,
@@ -14,16 +11,10 @@ export
   beta_pars_from_mv,
   vpcprior,
   logdvdw,
-  wpcprior,
-  DistJob,
-  Job,
-  run,
-  gibbs
+  wpcprior
 
 include("logit.jl")
 include("beta_moments.jl")
 include("vpcprior.jl")
-include("DistJob.jl")
-include("gibbs.jl")
 
 end
